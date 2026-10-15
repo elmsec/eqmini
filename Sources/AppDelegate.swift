@@ -11,6 +11,11 @@ import SwiftUI
   var aboutWindow: NSWindow?
   var settingsWindow: NSWindow?
   let startupSettings = StartupSettings()
+  private let preferences: UserDefaults
+  init(preferences: UserDefaults = .standard) {
+    self.preferences = preferences
+    super.init()
+  }
   private var quietLaunch = false
   private var audioExplanationObserver: AnyCancellable?
   private var panelController: NSHostingController<EqualizerPanel>?
@@ -29,9 +34,9 @@ import SwiftUI
       return
     }
     AppPreferences.migrateLegacy(
-      to: .standard,
+      to: preferences,
       legacy: UserDefaults.standard.persistentDomain(forName: "local.mac-equalizer.app"))
-    let model = EqualizerModel()
+    let model = EqualizerModel(preferences: preferences)
     self.model = model
     audioExplanationObserver = model.$needsAudioExplanation
       .receive(on: DispatchQueue.main)
@@ -61,18 +66,23 @@ import SwiftUI
     popover.contentSize = NSSize(width: 480, height: panelHeight)
     popover.behavior = .transient
     installMainMenu()
-    if !quietLaunch || CommandLine.arguments.contains("--window") {
-      DispatchQueue.main.async { [self] in
-        if CommandLine.arguments.contains("--window") {
-          showEqualizerWindow()
-        } else {
-          showStartupPanel()
-        }
-        if model.shouldRestoreOnLaunch { model.setEnabled(true) }
+    DispatchQueue.main.async { [self] in
+      presentLaunch(
+        quietLaunch: quietLaunch, requestedWindow: CommandLine.arguments.contains("--window"))
+      if model.shouldRestoreOnLaunch
+        && (model.hasAcceptedAudioExplanation || equalizerWindow?.isVisible == true)
+      {
+        model.setEnabled(true)
       }
-    } else if model.shouldRestoreOnLaunch && model.hasAcceptedAudioExplanation {
-      model.setEnabled(true)
     }
+  }
+  // A login launch never consumes the welcome presentation. An explicit window
+  // request remains available even after the one-time welcome has been shown.
+  func presentLaunch(quietLaunch: Bool, requestedWindow: Bool = false) {
+    guard requestedWindow || (!quietLaunch && !preferences.bool(forKey: "welcomeWindowShown"))
+    else { return }
+    showEqualizerWindow()
+    if equalizerWindow?.isVisible == true { preferences.set(true, forKey: "welcomeWindowShown") }
   }
   private func explainAudioAccess() {
     guard let model, model.needsAudioExplanation else { return }
@@ -293,7 +303,7 @@ import SwiftUI
   func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool
   {
     quietLaunch = false
-    if equalizerWindow?.isVisible == true { showEqualizerWindow() } else { showStartupPanel() }
+    showEqualizerWindow()
     return true
   }
   func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { false }

@@ -11,8 +11,27 @@ struct InteractionTests {
     preferences.set(true, forKey: "audioExplanationAccepted")  // An older build's acknowledgement.
     preferences.set(true, forKey: "selectedOnly")
     let model = EqualizerModel(preferences: preferences, monitoring: false)
-    let delegate = AppDelegate()
+    let delegate = AppDelegate(preferences: preferences)
     delegate.model = model
+    delegate.presentLaunch(quietLaunch: true)
+    precondition(delegate.equalizerWindow == nil)
+    precondition(!preferences.bool(forKey: "welcomeWindowShown"))
+    delegate.presentLaunch(quietLaunch: false)
+    precondition(delegate.equalizerWindow?.isVisible == true)
+    precondition(preferences.bool(forKey: "welcomeWindowShown"))
+    delegate.equalizerWindow?.close()
+    let nextLaunch = AppDelegate(preferences: preferences)
+    nextLaunch.model = model
+    nextLaunch.presentLaunch(quietLaunch: false)
+    precondition(nextLaunch.equalizerWindow == nil)
+    nextLaunch.presentLaunch(quietLaunch: true)
+    precondition(nextLaunch.equalizerWindow == nil)
+    nextLaunch.presentLaunch(quietLaunch: false, requestedWindow: true)
+    precondition(nextLaunch.equalizerWindow?.isVisible == true)
+    nextLaunch.equalizerWindow?.close()
+    print(
+      "PASS: welcome window shows once; login does not consume it; later starts stay quiet; explicit window request works"
+    )
     let menu = delegate.makeStatusMenu()
     precondition(menu.items.compactMap(\.title).contains("Open Equalizer"))
     precondition(menu.items.compactMap(\.title).contains("Settings…"))

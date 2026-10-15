@@ -29,7 +29,7 @@ The audio test runs three start/capture/stop cycles. It checks callback health, 
 ## Manual release checks
 
 - Download the actual release archive on a clean Mac; test extraction, Gatekeeper, and permission grant/denial.
-- Check a normal launch opens the menu-bar panel, login launch stays quiet, and left/right clicks on the menu-bar icon show the panel/menu.
+- Check the first normal launch opens a window, later starts stay quiet, and login launch does not consume the welcome window, and left/right clicks on the menu-bar icon show the panel/menu.
 - From each enable control, check the explanation appears before macOS permission on a new build; cancel must not start capture.
 - Pause playback for at least 15 seconds in all-audio and selected-app modes; EQ must remain enabled without an error and resume processing when playback resumes.
 - Enable and disable while audio plays; quit while enabled and confirm normal playback returns.
@@ -40,6 +40,10 @@ The audio test runs three start/capture/stop cycles. It checks callback health, 
 - Register launch at login from an installed app, log out/in, and confirm no window opens. Check both restore states, approval in System Settings, and removing the login item outside the app.
 
 A simulated quiet launch (`--login-launch`) tests presentation only; it does not validate real OS login registration. Digital signal tests do not establish listening quality or hardware safety.
+
+## Launch Services checks (opt-in)
+
+`bash scripts/test-launch.sh` launches an isolated test bundle through macOS Launch Services and observes its window for five seconds without a UI automation client activating or reopening it. It checks first launch, a subsequent launch, and a simulated login launch. Preferences are isolated and audio restoration is disabled. Run it in a desktop session after building the app.
 
 ## Screenshots
 

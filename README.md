@@ -24,7 +24,7 @@ Requires **macOS 14.2+** and **Apple silicon**.
 - Choose **All audio** or **Selected apps**. Selected apps share one curve; other apps keep their normal sound.
 - **Reset** clears the EQ, Custom curve, and Speaker bass. Double-click a band to reset it individually.
 
-Opening eqMini shows its menu-bar panel. Use **More → Open Equalizer Window** for a regular window. Left-click the menu-bar icon for the panel; right-click for quick actions. Closing the window leaves eqMini in the menu bar; quitting stops processing. **Settings…** contains optional **Launch at login** and **Restore EQ on launch**, both off by default.
+The first normal launch opens a welcome window; later startups stay in the menu bar. Use **More → Open Equalizer Window** for a regular window. Left-click the menu-bar icon for the panel; right-click for quick actions. Closing the window leaves eqMini in the menu bar; quitting stops processing. **Settings…** contains optional **Launch at login** and **Restore EQ on launch**, both off by default.
 
 Shortcuts: **⌘O** open window · **⌘1 / ⌘2** Simple / 10 bands · **⌘E** enable / disable · **⌘,** Settings · **⌘Q** quit.
 

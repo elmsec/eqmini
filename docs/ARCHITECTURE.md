@@ -38,4 +38,4 @@ Audio buffers stay in memory. Only preferences and app selections are persisted.
 
 `AudioDiagnostics.swift` contains opt-in hardware checks. Pure settings/login-service fakes live under `Tests/` and are excluded from the shipped executable. Documentation images are rendered from actual SwiftUI views with isolated demo preferences, not the user's running-app list.
 
-Normal launches open the menu-bar panel after the status-item anchor is ready; login launches stay in the menu bar. A per-build acknowledgement gates every enable entry point before capture starts. Login restoration waits for acknowledgement from a visible launch after an update.
+The first normal launch opens the equalizer window and records that it was shown. Later startups stay in the menu bar. Login launches never show or consume the welcome window. Explicit reopen/window requests still show the window. A per-build acknowledgement gates every enable entry point before capture starts. Login restoration waits for acknowledgement from a visible launch after an update.

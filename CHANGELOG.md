@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.0 — preview 5 · 2026-10-15
+
+- Show the equalizer window once on the first normal launch so the app is visibly ready.
+- Later startups stay in the menu bar. Login launches do not show or consume the welcome window.
+- Opening an already-running eqMini or choosing Open Equalizer still shows its window.
+
 ## 0.4.0 — preview 4 · 2026-10-15
 
 - Display name is now eqMini. Bundle identity and saved preferences are unchanged.
