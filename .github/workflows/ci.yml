@@ -28,5 +28,5 @@ jobs:
         run: SANITIZE=1 bash scripts/test.sh
       - name: Verify app metadata and signature
         run: |
-          plutil -lint Info.plist
+          plutil -lint Info.plist Eqmini.entitlements
           codesign --verify --deep --strict build/eqmini.app

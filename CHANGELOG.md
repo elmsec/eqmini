@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.0 — preview 2 · 2026-10-15
+
+- Developer ID signing with hardened runtime and the Core Audio input entitlement.
+- Apple notarization and stapled tickets for the app and DMG; both pass local Gatekeeper assessment.
+- Build number 6. Audio processing and controls are unchanged.
+
 ## 0.4.0 — preview 1 · 2026-10-15
 
 First packaged preview. Apple silicon, macOS 14.2+; ad-hoc signed, not notarized.

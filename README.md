@@ -14,7 +14,7 @@ Requires **macOS 14.2 or later**. The first downloadable preview is for **Apple 
 2. Drag **eqmini.app** into **Applications** and open it.
 3. Enable the equalizer. Allow system audio recording when macOS asks.
 
-**The current preview is ad-hoc signed and not notarized.** macOS may block a downloaded copy. If you trust the source and choose to run it, use Apple's per-app **Open Anyway** option in **System Settings → Privacy & Security**. Do not disable Gatekeeper globally. You can also build it yourself. See [distribution status](DISTRIBUTION.md).
+**Preview 2 is Developer ID signed and notarized by Apple.** Both the app and DMG include stapled notarization tickets and pass Gatekeeper assessment. System audio permission is still required. See [distribution status](DISTRIBUTION.md).
 
 ## Use it
 
@@ -89,7 +89,7 @@ Audio setup and teardown run on a serial control queue. The render callback uses
 - Shared system audio services and protected playback may prevent per-app selection or capture.
 - Surround and multi-output setups are unsupported. Bluetooth transitions and sleep/wake recovery need broader hardware testing.
 - Peak protection limits digital samples; it is not a true-peak limiter or a hearing/speaker protection guarantee.
-- Login registration and notarization need validation on an installed release and a clean Mac. Automated tests cannot establish perceived sound quality.
+- Login registration and downloaded installation need validation on a clean Mac. Automated tests cannot establish perceived sound quality.
 
 ## License and credits
 

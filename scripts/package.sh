@@ -24,7 +24,7 @@ STAGE=$(mktemp -d "$PWD/build/package.XXXXXX")
 trap 'rm -rf "$STAGE"' EXIT
 ditto "$APP" "$STAGE/eqmini.app"
 if [[ "$PREVIEW" == 0 ]]; then
-  codesign --force --sign "$CODESIGN_IDENTITY" --options runtime --timestamp "$STAGE/eqmini.app"
+  codesign --force --sign "$CODESIGN_IDENTITY" --options runtime --timestamp --entitlements Eqmini.entitlements "$STAGE/eqmini.app"
   ditto -c -k --sequesterRsrc --keepParent "$STAGE/eqmini.app" "$STAGE/notary.zip"
   xcrun notarytool submit "$STAGE/notary.zip" --keychain-profile "$NOTARY_PROFILE" --wait
   xcrun stapler staple "$STAGE/eqmini.app"

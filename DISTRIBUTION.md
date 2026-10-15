@@ -2,9 +2,9 @@
 
 ## Current preview
 
-Version **0.4.0 preview 1** is built for **Apple silicon** and macOS **14.2+**. ZIP and drag-to-Applications DMG assets are provided with SHA-256 checksums. They are **ad-hoc signed, not Developer ID signed or notarized**. They may be blocked when downloaded. This is an explicit preview limitation, not a clean-Mac installation guarantee.
+Version **0.4.0 preview 2** (build 6) is built for **Apple silicon** and macOS **14.2+**. ZIP and drag-to-Applications DMG assets are provided with SHA-256 checksums. The app and DMG are **Developer ID signed and notarized by Apple**, with stapled tickets. Both pass local Gatekeeper assessment as `Notarized Developer ID`.
 
-If a user chooses to run a trusted preview, Apple's per-app Open Anyway flow is available in Privacy & Security. Never recommend disabling Gatekeeper or stripping quarantine globally. Building from source is another option.
+Preview 1 was ad-hoc signed; use preview 2 for a notarized download.
 
 ## Packaging
 
@@ -25,6 +25,8 @@ bash scripts/package.sh
 ```
 
 The script signs with hardened runtime and a secure timestamp, notarizes/staples the app, creates ZIP/DMG packages, notarizes/staples the DMG, and writes checksums. It stops on any signing, submission, or stapling failure. No signing identity or credentials are embedded in source or CI. Current CI builds and tests only; release publication is manual.
+
+`Eqmini.entitlements` enables hardened runtime Audio Input access for Core Audio. The app does not read the microphone or enable hardware input. No other hardened runtime exceptions are requested.
 
 ## References
 
