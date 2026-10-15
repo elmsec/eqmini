@@ -8,7 +8,7 @@ struct DocumentationScreenshots {
   @MainActor static func main() throws {
     let app = NSApplication.shared
     app.setActivationPolicy(.prohibited)
-    if let icon = NSImage(contentsOfFile: "build/eqmini.app/Contents/Resources/AppIcon.icns") {
+    if let icon = NSImage(contentsOfFile: "build/eqMini.app/Contents/Resources/AppIcon.icns") {
       app.applicationIconImage = icon
     }
     let destination = URL(fileURLWithPath: CommandLine.arguments[1], isDirectory: true)
@@ -32,6 +32,9 @@ struct DocumentationScreenshots {
     try render(
       EqualizerPanel(model: model, panelHeight: 760), size: NSSize(width: 480, height: 760),
       to: destination.appendingPathComponent("simple.png"))
+    try render(
+      EqualizerWindowContent(model: model), size: NSSize(width: 480, height: 820),
+      to: destination.appendingPathComponent("window.png"))
     model.setSimpleMode(false)
     try render(
       EqualizerPanel(model: model, panelHeight: 760), size: NSSize(width: 480, height: 760),
@@ -71,11 +74,37 @@ struct DocumentationScreenshots {
       size: NSSize(width: 400, height: 430), to: destination.appendingPathComponent("settings.png"))
     model.setRestoreOnLaunch(true)
     try render(
-      EqualizerSettings(model: model, startup: StartupSettings(service: DemoLoginItem(status: .enabled))),
-      size: NSSize(width: 400, height: 430), to: destination.appendingPathComponent("settings-startup.png"))
+      EqualizerSettings(
+        model: model, startup: StartupSettings(service: DemoLoginItem(status: .enabled))),
+      size: NSSize(width: 400, height: 430),
+      to: destination.appendingPathComponent("settings-startup.png"))
     try render(
       AboutEqualizer(), size: NSSize(width: 424, height: 480),
       to: destination.appendingPathComponent("about.png"))
+    let simple = NSImage(contentsOf: destination.appendingPathComponent("simple.png"))!
+    let apps = NSImage(contentsOf: destination.appendingPathComponent("apps.png"))!
+    let overview = HStack(spacing: 56) {
+      ForEach(0..<2, id: \.self) { index in
+        Image(nsImage: index == 0 ? simple : apps).resizable().interpolation(.high)
+          .frame(width: 344, height: 344 * 760 / 480)
+          .clipShape(RoundedRectangle(cornerRadius: 16))
+          .overlay(
+            RoundedRectangle(cornerRadius: 16).stroke(Color.white.opacity(0.16), lineWidth: 2)
+          )
+          .shadow(color: .black.opacity(0.4), radius: 24, y: 14)
+      }
+    }
+    .frame(width: 960, height: 720)
+    .background(
+      LinearGradient(
+        colors: [
+          Color(red: 0.30, green: 0.15, blue: 0.40),
+          Color(red: 0.10, green: 0.16, blue: 0.26),
+          Color(red: 0.12, green: 0.30, blue: 0.28),
+        ], startPoint: .topLeading, endPoint: .bottomTrailing))
+    try render(
+      overview, size: NSSize(width: 960, height: 720),
+      to: destination.appendingPathComponent("overview.png"))
     print("Rendered isolated demo views to \(destination.path)")
   }
   @MainActor static func render<V: View>(_ root: V, size: NSSize, to url: URL) throws {

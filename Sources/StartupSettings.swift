@@ -34,7 +34,7 @@ struct SystemLoginItem: LoginItemManaging {
     }
     refresh()
     if enabled && status == .notFound && error == nil {
-      error = "macOS couldn’t register this copy of eqmini. Move it to Applications and try again."
+      error = "macOS couldn’t register this copy of eqMini. Move it to Applications and try again."
     }
   }
 }

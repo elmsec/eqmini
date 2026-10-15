@@ -329,7 +329,7 @@ final class EqualizerModel: ObservableObject {
       self.restarting = false
       self.requested = false
       self.preferences.set(false, forKey: "lastRequestedEnabled")
-      self.error = "Audio setup timed out. Quit eqmini and reopen it, then try again."
+      self.error = "Audio setup timed out. Quit eqMini and reopen it, then try again."
     }
   }
   private func scheduleRestart() {
@@ -394,7 +394,7 @@ final class EqualizerModel: ObservableObject {
     if waitingForApps {
       return selectedBundleIDs.isEmpty ? "No apps selected" : "Waiting for selected apps"
     }
-    if !enabled { return "Bypassed" }
+    if !enabled { return "Disabled" }
     return limiting ? String(format: "Peak protection · %.1f dB", limiterReduction) : "EQ active"
   }
   func setSelectedOnly(_ value: Bool) {

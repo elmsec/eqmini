@@ -12,7 +12,7 @@ Simple mode fits three broad frequency-weight profiles to the ten-band curve, ro
 
 ## Audio control
 
-All route creation/destruction and process enumeration run on `eqmini.audio-control`. UI state is updated on the main queue. A generation counter rejects results from a superseded enable/reconfigure request. Main-thread code clears `routeActive` before queueing teardown, so polling does not inspect a route being destroyed.
+All route creation/destruction and process enumeration run on `eqMini.audio-control`. UI state is updated on the main queue. A generation counter rejects results from a superseded enable/reconfigure request. Main-thread code clears `routeActive` before queueing teardown, so polling does not inspect a route being destroyed.
 
 `AudioBridge.h` is the narrow C interface used by Swift. `AudioEngine.mm` owns a single DSP instance, process tap, aggregate device, and HAL I/O callback. Engine lifecycle calls must be serialized by their caller. Atomic parameter setters and metering are safe across the UI/control and audio threads.
 
@@ -38,4 +38,4 @@ Audio buffers stay in memory. Only preferences and app selections are persisted.
 
 `AudioDiagnostics.swift` contains opt-in hardware checks. Pure settings/login-service fakes live under `Tests/` and are excluded from the shipped executable. Documentation images are rendered from actual SwiftUI views with isolated demo preferences, not the user's running-app list.
 
-Normal launches open the equalizer window; login launches stay in the menu bar. A per-build acknowledgement gates every enable entry point before capture starts. Login restoration waits for acknowledgement from a visible launch after an update.
+Normal launches open the menu-bar panel after the status-item anchor is ready; login launches stay in the menu bar. A per-build acknowledgement gates every enable entry point before capture starts. Login restoration waits for acknowledgement from a visible launch after an update.

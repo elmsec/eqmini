@@ -12,6 +12,6 @@ body:
     id: environment
     attributes:
       label: Environment
-      description: eqmini version, macOS version, Mac model, output device, source app, and All audio or Selected apps.
+      description: eqMini version, macOS version, Mac model, output device, source app, and All audio or Selected apps.
     validations:
       required: true

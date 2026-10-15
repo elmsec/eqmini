@@ -10,7 +10,7 @@ struct EqualizerSettings: View {
     VStack(alignment: .leading, spacing: 24) {
       VStack(alignment: .leading, spacing: 6) {
         Text("Make yourself at home.").font(.title2.bold())
-        Text("Choose how eqmini starts.").foregroundStyle(.secondary)
+        Text("Choose how eqMini starts.").foregroundStyle(.secondary)
       }
       VStack(alignment: .leading, spacing: 10) {
         Toggle(
@@ -28,7 +28,7 @@ struct EqualizerSettings: View {
         if !Bundle.main.bundlePath.hasPrefix("/Applications/")
           && !Bundle.main.bundlePath.hasPrefix(NSHomeDirectory() + "/Applications/")
         {
-          Text("Keep eqmini in Applications before enabling launch at login.")
+          Text("Keep eqMini in Applications before enabling launch at login.")
             .font(.caption).foregroundStyle(.secondary)
         }
         if let error = startup.error { Text(error).font(.callout).foregroundStyle(.orange) }
@@ -45,7 +45,7 @@ struct EqualizerSettings: View {
       }
       Divider()
       Label {
-        Text("Closing the window keeps eqmini running in the menu bar. Choose Quit to stop it.")
+        Text("Closing the window keeps eqMini running in the menu bar. Choose Quit to stop it.")
       } icon: {
         Image(systemName: "menubar.rectangle")
       }

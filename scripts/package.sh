@@ -12,35 +12,35 @@ if [[ "$PREVIEW" == 0 ]]; then
   : "${NOTARY_PROFILE:?Set a notarytool keychain profile or use --preview}"
   [[ "$CODESIGN_IDENTITY" == 'Developer ID Application:'* ]] || { echo 'A Developer ID Application certificate is required.' >&2; exit 1; }
 fi
-APP=build/eqmini.app
+APP=build/eqMini.app
 [[ -d "$APP" ]] || { echo 'Build the app first.' >&2; exit 1; }
 VERSION=$(/usr/libexec/PlistBuddy -c 'Print CFBundleShortVersionString' "$APP/Contents/Info.plist")
 ARCH=$(lipo -archs "$APP/Contents/MacOS/eqmini" | tr ' ' '-')
-NAME="eqmini-$VERSION-$ARCH"
+NAME="eqMini-$VERSION-$ARCH"
 [[ "$PREVIEW" == 0 ]] || NAME="$NAME-preview"
 OUT="$PWD/release"
 mkdir -p "$OUT"
 STAGE=$(mktemp -d "$PWD/build/package.XXXXXX")
 trap 'rm -rf "$STAGE"' EXIT
-ditto "$APP" "$STAGE/eqmini.app"
+ditto "$APP" "$STAGE/eqMini.app"
 if [[ "$PREVIEW" == 0 ]]; then
-  codesign --force --sign "$CODESIGN_IDENTITY" --options runtime --timestamp --entitlements Eqmini.entitlements "$STAGE/eqmini.app"
-  ditto -c -k --sequesterRsrc --keepParent "$STAGE/eqmini.app" "$STAGE/notary.zip"
+  codesign --force --sign "$CODESIGN_IDENTITY" --options runtime --timestamp --entitlements Eqmini.entitlements "$STAGE/eqMini.app"
+  ditto -c -k --sequesterRsrc --keepParent "$STAGE/eqMini.app" "$STAGE/notary.zip"
   xcrun notarytool submit "$STAGE/notary.zip" --keychain-profile "$NOTARY_PROFILE" --wait
-  xcrun stapler staple "$STAGE/eqmini.app"
-  xcrun stapler validate "$STAGE/eqmini.app"
+  xcrun stapler staple "$STAGE/eqMini.app"
+  xcrun stapler validate "$STAGE/eqMini.app"
 fi
-codesign --verify --deep --strict "$STAGE/eqmini.app"
-ditto -c -k --sequesterRsrc --keepParent "$STAGE/eqmini.app" "$OUT/$NAME.zip"
+codesign --verify --deep --strict "$STAGE/eqMini.app"
+ditto -c -k --sequesterRsrc --keepParent "$STAGE/eqMini.app" "$OUT/$NAME.zip"
 mkdir "$STAGE/disk"
-ditto "$STAGE/eqmini.app" "$STAGE/disk/eqmini.app"
+ditto "$STAGE/eqMini.app" "$STAGE/disk/eqMini.app"
 ln -s /Applications "$STAGE/disk/Applications"
 cp LICENSE "$STAGE/disk/LICENSE.txt"
 if [[ "$PREVIEW" == 1 ]]; then
   cat > "$STAGE/disk/READ ME.txt" <<'NOTICE'
-eqmini preview — macOS 14.2+
+eqMini preview — macOS 14.2+
 
-Drag eqmini into Applications.
+Drag eqMini into Applications.
 
 This preview is ad-hoc signed and NOT notarized. macOS may block downloaded
 copies. Only proceed if you trust this source. Apple's per-app Open Anyway
@@ -51,7 +51,7 @@ Privacy: https://elma.dev/eqmini/privacy
 Terms: https://elma.dev/eqmini/terms
 NOTICE
 fi
-hdiutil create -volname eqmini -srcfolder "$STAGE/disk" -ov -format UDZO "$OUT/$NAME.dmg"
+hdiutil create -volname eqMini -srcfolder "$STAGE/disk" -ov -format UDZO "$OUT/$NAME.dmg"
 if [[ "$PREVIEW" == 0 ]]; then
   codesign --sign "$CODESIGN_IDENTITY" --timestamp "$OUT/$NAME.dmg"
   xcrun notarytool submit "$OUT/$NAME.dmg" --keychain-profile "$NOTARY_PROFILE" --wait

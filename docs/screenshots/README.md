@@ -3,8 +3,10 @@
 | View | Image |
 | --- | --- |
 | Overview mockup | [overview.png](overview.png) |
+| App icon | [app-icon.png](app-icon.png) |
 | Initial view | [initial.png](initial.png) |
 | Simple / Bass Boost | [simple.png](simple.png) |
+| Regular window | [window.png](window.png) |
 | Ten bands / Bass Boost | [bands.png](bands.png) |
 | Warm preset | [warm.png](warm.png) |
 | Custom EQ | [custom.png](custom.png) |

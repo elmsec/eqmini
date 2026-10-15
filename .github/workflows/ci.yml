@@ -29,4 +29,4 @@ jobs:
       - name: Verify app metadata and signature
         run: |
           plutil -lint Info.plist Eqmini.entitlements
-          codesign --verify --deep --strict build/eqmini.app
+          codesign --verify --deep --strict build/eqMini.app

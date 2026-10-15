@@ -16,7 +16,7 @@ struct InteractionTests {
     let menu = delegate.makeStatusMenu()
     precondition(menu.items.compactMap(\.title).contains("Open Equalizer"))
     precondition(menu.items.compactMap(\.title).contains("Settings…"))
-    precondition(menu.items.compactMap(\.title).contains("Quit eqmini"))
+    precondition(menu.items.compactMap(\.title).contains("Quit eqMini"))
     let enable = menu.items.first { $0.title == "Enable Equalizer" }!
     precondition(NSApp.sendAction(enable.action!, to: enable.target, from: enable))
     precondition(model.needsAudioExplanation && !model.enabled && !model.restarting)
@@ -27,9 +27,9 @@ struct InteractionTests {
     precondition(model.needsAudioExplanation && !model.enabled)
     model.resolveAudioExplanation(proceed: true)
     precondition(model.hasAcceptedAudioExplanation && model.enabled && model.waitingForApps)
-    let bypass = delegate.makeStatusMenu().items.first { $0.title == "Bypass Equalizer" }!
-    precondition(bypass.state == .on)
-    precondition(NSApp.sendAction(bypass.action!, to: bypass.target, from: bypass))
+    let disable = delegate.makeStatusMenu().items.first { $0.title == "Disable Equalizer" }!
+    precondition(disable.state == .on)
+    precondition(NSApp.sendAction(disable.action!, to: disable.target, from: disable))
     precondition(!model.enabled && !model.restarting)
     let reopened = EqualizerModel(preferences: preferences, monitoring: false)
     precondition(reopened.hasAcceptedAudioExplanation)

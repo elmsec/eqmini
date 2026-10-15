@@ -6,7 +6,7 @@ Start with an issue describing the behavior you want to change. For a bug, inclu
 
 1. Build with `bash scripts/build.sh`.
 2. Run `bash scripts/test.sh`; use `SANITIZE=1 bash scripts/test.sh` for DSP changes.
-3. Check the affected UI in both Simple and 10-band views. Keep your app bypassed when testing layout only.
+3. Check the affected UI in both Simple and 10-band views. Keep your app disabled when testing layout only.
 4. For routing changes, run the opt-in checks in [TESTING.md](docs/TESTING.md).
 
 Use `xcrun swift-format format --in-place --recursive Sources Tests` to format Swift. C++ uses C++17 and must pass `-Wall -Wextra -Werror`. Keep pull requests focused, explain the user-visible result, and record what was actually tested.

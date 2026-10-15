@@ -55,13 +55,11 @@ struct EqualizerPanel: View {
 
   private var header: some View {
     HStack(spacing: 12) {
-      Image(systemName: "waveform.path")
-        .font(.system(size: 22, weight: .medium)).foregroundStyle(accent)
+      Image(nsImage: BrandIcon.image(size: 84)).resizable()
         .frame(width: 42, height: 42)
-        .background(accent.opacity(0.12), in: RoundedRectangle(cornerRadius: 12))
         .accessibilityHidden(true)
       VStack(alignment: .leading, spacing: 3) {
-        Text("eqmini").font(.system(size: 24, weight: .bold, design: .rounded))
+        Text("eqMini").font(.system(size: 24, weight: .bold, design: .rounded))
         Text(
           model.restarting
             ? "Reconnecting audio…"
@@ -80,7 +78,7 @@ struct EqualizerPanel: View {
             (NSApp.delegate as? AppDelegate)?.showEqualizerWindow()
           }
           .keyboardShortcut("o")
-          Button("About eqmini") { (NSApp.delegate as? AppDelegate)?.showAbout() }
+          Button("About eqMini") { (NSApp.delegate as? AppDelegate)?.showAbout() }
           Button("Settings…") { (NSApp.delegate as? AppDelegate)?.showSettings() }
             .keyboardShortcut(",")
           Link("Privacy Policy", destination: AppLinks.privacy)
@@ -89,7 +87,7 @@ struct EqualizerPanel: View {
           Button("Reset equalizer") { model.resetEqualizer() }
           Button("Reset output gain") { model.setOutputGain(0) }
           Divider()
-          Button("Quit eqmini") {
+          Button("Quit eqMini") {
             NSApplication.shared.terminate(nil)
           }
           .keyboardShortcut("q")

@@ -143,11 +143,11 @@ static bool startAudio(NSArray<NSNumber*> *includedProcesses) {
         } else {
             description=[[CATapDescription alloc] initExcludingProcesses:@[@(ownProcess)] andDeviceUID:outputUID withStream:0];
         }
-        description.name=@"eqmini"; description.privateTap=YES;
+        description.name=@"eqMini"; description.privateTap=YES;
         description.muteBehavior=CATapMutedWhenTapped;
         if(!check(AudioHardwareCreateProcessTap(description,&tap),"Create system audio tap")) {EQStop(); return false;}
         NSDictionary *composition=@{
-            @kAudioAggregateDeviceNameKey:@"eqmini Private Output",
+            @kAudioAggregateDeviceNameKey:@"eqMini Private Output",
             @kAudioAggregateDeviceUIDKey:[[NSUUID UUID] UUIDString],
             @kAudioAggregateDeviceIsPrivateKey:@YES,
             @kAudioAggregateDeviceIsStackedKey:@NO,

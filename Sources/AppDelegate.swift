@@ -45,8 +45,8 @@ import SwiftUI
       || CommandLine.arguments.contains("--login-launch")
     let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
     self.item = item
-    item.button?.image = Self.menuBarIcon()
-    item.button?.toolTip = "eqmini — Equalizer"
+    item.button?.image = BrandIcon.image(size: 20, template: true)
+    item.button?.toolTip = "eqMini — Equalizer"
     item.button?.target = self
     item.button?.action = #selector(statusItemClicked(_:))
     item.button?.sendAction(on: [.leftMouseUp, .rightMouseUp])
@@ -63,7 +63,11 @@ import SwiftUI
     installMainMenu()
     if !quietLaunch || CommandLine.arguments.contains("--window") {
       DispatchQueue.main.async { [self] in
-        showEqualizerWindow()
+        if CommandLine.arguments.contains("--window") {
+          showEqualizerWindow()
+        } else {
+          showStartupPanel()
+        }
         if model.shouldRestoreOnLaunch { model.setEnabled(true) }
       }
     } else if model.shouldRestoreOnLaunch && model.hasAcceptedAudioExplanation {
@@ -72,13 +76,14 @@ import SwiftUI
   }
   private func explainAudioAccess() {
     guard let model, model.needsAudioExplanation else { return }
+    let reopenPanel = popover.isShown
     popover.performClose(nil)
     let alert = NSAlert()
     alert.messageText = "Allow sound processing"
     alert.informativeText = """
-      eqmini needs macOS System Audio Recording access to apply the equalizer to your sound.
+      eqMini needs macOS System Audio Recording access to apply the equalizer to your sound.
 
-      Audio is processed live on your Mac. eqmini does not save recordings, capture your screen, or make network requests. Nothing is uploaded.
+      Audio is processed live on your Mac. eqMini does not save recordings, capture your screen, or make network requests. Nothing is uploaded.
 
       After Continue, macOS may ask for permission. You can revoke access later in System Settings → Privacy & Security.
       """
@@ -87,6 +92,9 @@ import SwiftUI
     alert.addButton(withTitle: "Not Now")
     NSApp.activate(ignoringOtherApps: true)
     model.resolveAudioExplanation(proceed: alert.runModal() == .alertFirstButtonReturn)
+    if reopenPanel {
+      DispatchQueue.main.async { [weak self] in self?.showStartupPanel() }
+    }
   }
   @objc func showSettings() {
     guard let model else { return }
@@ -95,7 +103,7 @@ import SwiftUI
     if settingsWindow == nil {
       let window = NSWindow(
         contentRect: .zero, styleMask: [.titled, .closable], backing: .buffered, defer: false)
-      window.title = "eqmini Settings"
+      window.title = "eqMini Settings"
       window.contentViewController = NSHostingController(
         rootView: EqualizerSettings(model: model, startup: startupSettings))
       window.isReleasedWhenClosed = false
@@ -107,31 +115,6 @@ import SwiftUI
     settingsWindow?.makeKeyAndOrderFront(nil)
     NSApp.activate(ignoringOtherApps: true)
   }
-  private static func menuBarIcon() -> NSImage {
-    // Three shaped faders stay legible at menu-bar size and in either appearance.
-    let image = NSImage(size: NSSize(width: 20, height: 18), flipped: false) { _ in
-      NSColor.black.setStroke()
-      NSColor.black.setFill()
-      for (x, knob) in [
-        (CGFloat(4), CGFloat(11)), (CGFloat(10), CGFloat(6)), (CGFloat(16), CGFloat(10)),
-      ] {
-        let path = NSBezierPath()
-        path.lineWidth = 1.6
-        path.lineCapStyle = .round
-        path.move(to: NSPoint(x: x, y: 2))
-        path.line(to: NSPoint(x: x, y: 16))
-        path.stroke()
-        NSBezierPath(
-          roundedRect: NSRect(x: x - 2.4, y: knob - 1.7, width: 4.8, height: 3.4), xRadius: 1.3,
-          yRadius: 1.3
-        ).fill()
-      }
-      return true
-    }
-    image.isTemplate = true
-    image.accessibilityDescription = "eqmini"
-    return image
-  }
   @objc func showEqualizerWindow() {
     guard let model else { return }
     popover.performClose(nil)
@@ -141,7 +124,7 @@ import SwiftUI
         contentRect: NSRect(x: 0, y: 0, width: 480, height: height),
         styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered,
         defer: false)
-      window.title = "eqmini"
+      window.title = "eqMini"
       window.contentViewController = NSHostingController(
         rootView: EqualizerWindowContent(model: model))
       window.minSize = NSSize(width: 480, height: 560)
@@ -163,7 +146,7 @@ import SwiftUI
     if aboutWindow == nil {
       let window = NSWindow(
         contentRect: .zero, styleMask: [.titled, .closable], backing: .buffered, defer: false)
-      window.title = "About eqmini"
+      window.title = "About eqMini"
       window.contentViewController = NSHostingController(rootView: AboutEqualizer())
       window.isReleasedWhenClosed = false
       window.delegate = self
@@ -207,13 +190,13 @@ import SwiftUI
     add("Open Equalizer", #selector(showEqualizerWindow)).keyEquivalent = "o"
     menu.addItem(.separator())
     let active = model?.enabledOrConnecting == true
-    add(active ? "Bypass Equalizer" : "Enable Equalizer", #selector(toggleEqualizer))
+    add(active ? "Disable Equalizer" : "Enable Equalizer", #selector(toggleEqualizer))
       .state = active ? .on : .off
     menu.addItem(.separator())
     add("Settings…", #selector(showSettings)).keyEquivalent = ","
-    add("About eqmini", #selector(showAbout))
+    add("About eqMini", #selector(showAbout))
     menu.addItem(.separator())
-    let quit = add("Quit eqmini", #selector(NSApplication.terminate(_:)))
+    let quit = add("Quit eqMini", #selector(NSApplication.terminate(_:)))
     quit.target = NSApp
     quit.keyEquivalent = "q"
     return menu
@@ -241,16 +224,16 @@ import SwiftUI
       item.target = target ?? self
       menu.addItem(item)
     }
-    let app = submenu("eqmini")
-    add(app, "About eqmini", #selector(showAbout))
+    let app = submenu("eqMini")
+    add(app, "About eqMini", #selector(showAbout))
     app.addItem(.separator())
     add(app, "Settings…", #selector(showSettings), ",")
     app.addItem(.separator())
-    add(app, "Hide eqmini", #selector(NSApplication.hide(_:)), "h", target: NSApp)
+    add(app, "Hide eqMini", #selector(NSApplication.hide(_:)), "h", target: NSApp)
     app.addItem(.separator())
-    add(app, "Quit eqmini", #selector(NSApplication.terminate(_:)), "q", target: NSApp)
+    add(app, "Quit eqMini", #selector(NSApplication.terminate(_:)), "q", target: NSApp)
     let eq = submenu("Equalizer")
-    add(eq, "Enable / Bypass", #selector(toggleEqualizer), "e")
+    add(eq, "Enable / Disable", #selector(toggleEqualizer), "e")
     add(eq, "Reset Equalizer", #selector(resetEqualizer))
     let edit = submenu("Edit")
     for (title, action, key) in [
@@ -271,25 +254,36 @@ import SwiftUI
     window.addItem(minimize)
     NSApp.windowsMenu = window
     let help = submenu("Help")
-    add(help, "eqmini Website", #selector(openWebsite))
+    add(help, "eqMini Website", #selector(openWebsite))
     add(help, "Privacy Policy", #selector(openPrivacy))
     add(help, "Terms of Use", #selector(openTerms))
     NSApp.helpMenu = help
     NSApp.mainMenu = main
   }
+  // The status-item anchor is not always laid out during the first launch turn.
+  func showStartupPanel(attempt: Int = 0) {
+    guard model != nil else { return }
+    guard let button = item?.button, button.window?.screen != nil else {
+      if attempt < 10 {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
+          self?.showStartupPanel(attempt: attempt + 1)
+        }
+      }
+      return
+    }
+    showPanel(relativeTo: button)
+  }
+  private func showPanel(relativeTo button: NSStatusBarButton) {
+    guard !popover.isShown, let model else { return }
+    panelController?.rootView = EqualizerPanel(model: model, panelHeight: panelHeight)
+    panelController?.preferredContentSize = NSSize(width: 480, height: panelHeight)
+    popover.contentSize = NSSize(width: 480, height: panelHeight)
+    NSApp.activate(ignoringOtherApps: true)
+    popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
+  }
   @objc func togglePanel() {
     guard let button = item?.button else { return }
-    if popover.isShown {
-      popover.performClose(nil)
-    } else {
-      if let model {
-        panelController?.rootView = EqualizerPanel(model: model, panelHeight: panelHeight)
-        panelController?.preferredContentSize = NSSize(width: 480, height: panelHeight)
-        popover.contentSize = NSSize(width: 480, height: panelHeight)
-      }
-      NSApp.activate(ignoringOtherApps: true)
-      popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
-    }
+    if popover.isShown { popover.performClose(nil) } else { showPanel(relativeTo: button) }
   }
   func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
     guard let model else { return .terminateNow }
@@ -299,7 +293,7 @@ import SwiftUI
   func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool
   {
     quietLaunch = false
-    showEqualizerWindow()
+    if equalizerWindow?.isVisible == true { showEqualizerWindow() } else { showStartupPanel() }
     return true
   }
   func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { false }

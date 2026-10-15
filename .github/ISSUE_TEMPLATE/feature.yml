@@ -1,5 +1,5 @@
 name: Feature request
-description: Describe a problem eqmini could solve.
+description: Describe a problem eqMini could solve.
 body:
   - type: textarea
     id: problem
