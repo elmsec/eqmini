@@ -1,0 +1,17 @@
+name: Bug report
+description: Report a reproducible problem.
+body:
+  - type: textarea
+    id: behavior
+    attributes:
+      label: What happened?
+      description: Include reproduction steps and expected behavior. Avoid private audio or process details.
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: eqmini version, macOS version, Mac model, output device, source app, and All audio or Selected apps.
+    validations:
+      required: true

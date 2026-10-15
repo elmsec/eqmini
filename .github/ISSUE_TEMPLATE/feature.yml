@@ -1,0 +1,10 @@
+name: Feature request
+description: Describe a problem eqmini could solve.
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What are you trying to do?
+      description: Explain the use case and what gets in the way today.
+    validations:
+      required: true

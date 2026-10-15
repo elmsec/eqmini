@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+<key>CFBundleExecutable</key><string>eqmini</string>
+<key>CFBundleIdentifier</key><string>dev.elma.eqmini</string>
+<key>CFBundleName</key><string>eqmini</string>
+<key>CFBundleDisplayName</key><string>eqmini</string>
+<key>CFBundleIconFile</key><string>AppIcon</string>
+<key>CFBundlePackageType</key><string>APPL</string>
+<key>CFBundleShortVersionString</key><string>0.4.0</string>
+<key>CFBundleVersion</key><string>5</string>
+<key>LSMinimumSystemVersion</key><string>14.2</string>
+<key>LSUIElement</key><true/>
+<key>NSAudioCaptureUsageDescription</key><string>eqmini processes audio in real time to apply your equalizer to all audio or only your selected apps. Audio stays on your Mac and is never recorded or uploaded.</string>
+<key>NSHighResolutionCapable</key><true/>
+</dict></plist>

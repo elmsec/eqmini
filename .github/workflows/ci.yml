@@ -1,0 +1,32 @@
+name: Build and test
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  test:
+    name: ${{ matrix.runner }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [macos-15, macos-15-intel]
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.3.1
+        with:
+          persist-credentials: false
+      - name: Build
+        run: bash scripts/build.sh
+      - name: Test with DSP sanitizers
+        run: SANITIZE=1 bash scripts/test.sh
+      - name: Verify app metadata and signature
+        run: |
+          plutil -lint Info.plist
+          codesign --verify --deep --strict build/eqmini.app

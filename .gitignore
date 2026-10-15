@@ -1,0 +1,15 @@
+# Generated builds and local metadata
+build/
+release/
+.DS_Store
+.swiftpm/
+.build/
+# Credentials must never be committed
+.env
+.env.*
+*.p12
+*.p8
+*.mobileprovision
+*.provisionprofile
+*.keychain-db
+*.xcuserstate
