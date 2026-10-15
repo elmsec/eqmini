@@ -18,3 +18,12 @@ xcrun swiftc -O -warnings-as-errors -parse-as-library -swift-version 5 \
   build/tests/AudioEngine.o -o build/tests/settings-tests -framework AppKit -framework CoreAudio -framework ServiceManagement -lc++
 build/tests/settings-tests --settings-self-test
 build/tests/settings-tests --startup-self-test
+SOURCES=()
+for source in Sources/*.swift; do
+  [[ "$source" == Sources/EqminiApp.swift ]] || SOURCES+=("$source")
+done
+xcrun swiftc -O -warnings-as-errors -parse-as-library -swift-version 5 \
+  -target "$(uname -m)-apple-macosx14.2" -sdk "$SDK" -module-cache-path "$CLANG_MODULE_CACHE_PATH" \
+  -import-objc-header Sources/AudioBridge.h "${SOURCES[@]}" Tests/InteractionTests.swift \
+  build/tests/AudioEngine.o -o build/tests/interaction-tests -framework SwiftUI -framework AppKit -framework CoreAudio -framework ServiceManagement -lc++
+build/tests/interaction-tests

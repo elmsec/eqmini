@@ -18,7 +18,7 @@ All route creation/destruction and process enumeration run on `eqmini.audio-cont
 
 The tap is private and specific to the default output. All-audio mode excludes this process. Selected-app mode includes only selected process IDs, excluding this process even if passed explicitly. The aggregate includes the physical output and tap, with tap drift compensation. Hardware input streams are disabled. The app does not set the system's default output device.
 
-Tap muting applies only while capture is active. Stop releases the I/O procedure, aggregate, and tap. Failed setup tears down partial resources. A callback heartbeat and device checks let the model recover or release an unhealthy route. Device/rate changes and wake events schedule a rebuild.
+Tap muting applies only while capture is active. Stop releases the I/O procedure, aggregate, and tap. Failed setup tears down partial resources. Device checks handle route changes. A callback watchdog releases a stalled route only after sustained missing callbacks during confirmed source playback on the current output. Paused sources and unknown or stale playback inventories reset the grace period. Device/rate changes and wake events schedule a rebuild.
 
 ## Render path
 
@@ -37,3 +37,5 @@ With Keep volume off, a response scan estimates the EQ's largest boost and atten
 Audio buffers stay in memory. Only preferences and app selections are persisted. There is no app networking, telemetry, updater, recording feature, driver, privileged helper, or separate background service. Links open the browser, where the destination's policies apply. Diagnostic commands are explicit and may print app/process metadata.
 
 `AudioDiagnostics.swift` contains opt-in hardware checks. Pure settings/login-service fakes live under `Tests/` and are excluded from the shipped executable. Documentation images are rendered from actual SwiftUI views with isolated demo preferences, not the user's running-app list.
+
+Normal launches open the equalizer window; login launches stay in the menu bar. A per-build acknowledgement gates every enable entry point before capture starts. Login restoration waits for acknowledgement from a visible launch after an update.

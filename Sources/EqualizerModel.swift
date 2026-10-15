@@ -22,6 +22,7 @@ struct AudioProcess: Decodable {
   let id: UInt32
   let bundleID: String
   let name: String
+  let runningOutput: Bool?
 }
 struct AudioInventory: Decodable {
   let processes: [AudioProcess]
@@ -82,6 +83,25 @@ enum SimpleEQ {
   }
 }
 
+// A tap may stop receiving callbacks while its source is paused. Only treat a
+// sustained stall during confirmed playback as a route failure.
+struct PlaybackWatchdog {
+  private var stalledSince: TimeInterval?
+  mutating func shouldRecover(callbacksHealthy: Bool, sourcePlaying: Bool?, now: TimeInterval)
+    -> Bool
+  {
+    guard sourcePlaying == true, !callbacksHealthy else {
+      stalledSince = nil
+      return false
+    }
+    guard let stalledSince else {
+      self.stalledSince = now
+      return false
+    }
+    return now - stalledSince >= 5
+  }
+}
+
 @MainActor
 final class EqualizerModel: ObservableObject {
   @Published var enabled = false
@@ -91,6 +111,7 @@ final class EqualizerModel: ObservableObject {
   @Published var customGains: [Float]?
   @Published var output = "System output"
   @Published var error: String?
+  @Published private(set) var audioPermissionDenied = false
   @Published var headroom: Float = 0
   @Published var limiting = false
   @Published var restarting = false
@@ -109,10 +130,12 @@ final class EqualizerModel: ObservableObject {
   @Published private(set) var restoreOnLaunch = false
   private var processes: [AudioProcess] = []
   private var inventoryStatus: Int32 = 0
+  private var inventoryUpdatedAt: TimeInterval = 0
   private var activeProcessIDs: [UInt32] = []
   private let preferences: UserDefaults
   private var simpleBase: [Float] = []
   private var routeActive = false
+  private var playbackWatchdog = PlaybackWatchdog()
   private let audioQueue = DispatchQueue(label: "eqmini.audio-control", qos: .userInitiated)
   private var audioGeneration = 0
   private var inventoryLoading = false
@@ -189,8 +212,17 @@ final class EqualizerModel: ObservableObject {
         }
       })
   }
+  // Reconfirm after an app update: earlier builds may have been run with a
+  // different signing identity, for which macOS grants separate capture access.
+  static var audioExplanationRevision: String {
+    "2:" + (Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "development")
+  }
+  var hasAcceptedAudioExplanation: Bool {
+    preferences.string(forKey: "audioExplanationRevision") == Self.audioExplanationRevision
+  }
+  var enabledOrConnecting: Bool { enabled || restarting }
   func setEnabled(_ value: Bool) {
-    if value && !preferences.bool(forKey: "audioExplanationAccepted") {
+    if value && !hasAcceptedAudioExplanation {
       needsAudioExplanation = true
       return
     }
@@ -215,6 +247,7 @@ final class EqualizerModel: ObservableObject {
       return
     }
     preferences.set(true, forKey: "audioExplanationAccepted")
+    preferences.set(Self.audioExplanationRevision, forKey: "audioExplanationRevision")
     setEnabled(true)
   }
   var shouldRestoreOnLaunch: Bool {
@@ -228,10 +261,13 @@ final class EqualizerModel: ObservableObject {
   private func stopAudio() {
     audioGeneration += 1
     routeActive = false
+    playbackWatchdog = PlaybackWatchdog()
     audioQueue.async { EQStop() }
   }
   private func start() {
     error = nil
+    audioPermissionDenied = false
+    playbackWatchdog = PlaybackWatchdog()
     refreshApps()
     if selectedOnly && inventoryStatus != 0 {
       stopAudio()
@@ -267,6 +303,7 @@ final class EqualizerModel: ObservableObject {
       let outputDevice = EQDefaultOutput()
       let outputName = String(cString: EQOutputName())
       let failure = String(cString: EQError())
+      let permissionDenied = EQPermissionDenied()
       DispatchQueue.main.async {
         guard let self, self.audioGeneration == generation else { return }
         self.restarting = false
@@ -280,6 +317,7 @@ final class EqualizerModel: ObservableObject {
           self.routeActive = false
           self.requested = false
           self.error = failure
+          self.audioPermissionDenied = permissionDenied
           self.preferences.set(false, forKey: "lastRequestedEnabled")
         }
       }
@@ -321,13 +359,27 @@ final class EqualizerModel: ObservableObject {
     limiting = limiterReduction > 0.5
     if EQDefaultOutput() != device || EQOutputChanged() {
       scheduleRestart()
-    } else if !EQHealthy() {
+    } else if playbackWatchdog.shouldRecover(
+      callbacksHealthy: EQHealthy(), sourcePlaying: sourcePlaying,
+      now: ProcessInfo.processInfo.systemUptime)
+    {
       stopAudio()
       enabled = false
       requested = false
       preferences.set(false, forKey: "lastRequestedEnabled")
       error = "Audio stopped responding. Normal playback has been restored. Try enabling again."
     }
+  }
+  private var sourcePlaying: Bool? {
+    guard inventoryStatus == 0,
+      ProcessInfo.processInfo.systemUptime - inventoryUpdatedAt < 2
+    else { return nil }
+    let sources =
+      selectedOnly
+      ? processes.filter { selectedBundleIDs.contains($0.bundleID) } : processes
+    if sources.contains(where: { $0.runningOutput == true }) { return true }
+    if sources.contains(where: { $0.runningOutput == nil }) { return nil }
+    return false
   }
   private var matchingProcessIDs: [UInt32] {
     Array(Set(processes.filter { selectedBundleIDs.contains($0.bundleID) }.map(\.id))).sorted()
@@ -378,6 +430,7 @@ final class EqualizerModel: ObservableObject {
         self.inventoryLoading = false
         self.processes = inventory?.processes ?? []
         self.inventoryStatus = inventory?.status ?? -1
+        self.inventoryUpdatedAt = ProcessInfo.processInfo.systemUptime
         self.updateAppChoices()
       }
     }

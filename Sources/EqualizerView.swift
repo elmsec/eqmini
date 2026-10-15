@@ -24,12 +24,14 @@ struct EqualizerPanel: View {
               Label(error, systemImage: "exclamationmark.circle")
                 .font(.system(size: 12)).foregroundStyle(.orange)
                 .fixedSize(horizontal: false, vertical: true)
-              Button("Open Audio Recording Settings") {
-                NSWorkspace.shared.open(
-                  URL(
-                    string:
-                      "x-apple.systempreferences:com.apple.preference.security?Privacy_AudioCapture"
-                  )!)
+              if model.audioPermissionDenied {
+                Button("Open Audio Recording Settings") {
+                  NSWorkspace.shared.open(
+                    URL(
+                      string:
+                        "x-apple.systempreferences:com.apple.preference.security?Privacy_AudioCapture"
+                    )!)
+                }
               }
             }.padding(14).frame(maxWidth: .infinity, alignment: .leading)
               .background(Color.orange.opacity(0.08), in: RoundedRectangle(cornerRadius: 12))

@@ -5,14 +5,14 @@ import SwiftUI
 
 @MainActor extension AppDelegate {
   func runControlSelfTest() {
-    guard UserDefaults.standard.bool(forKey: "audioExplanationAccepted") else {
+    let model = EqualizerModel()
+    guard model.hasAcceptedAudioExplanation else {
       print(
         "Read and accept the audio explanation by enabling EQ in the app before this live test.")
       exitCode = 1
       NSApp.terminate(nil)
       return
     }
-    let model = EqualizerModel()
     self.model = model
     var ticks = 0
     var activeTicks = 0

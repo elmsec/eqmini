@@ -2,9 +2,9 @@
 
 ## Current preview
 
-Version **0.4.0 preview 2** (build 6) is built for **Apple silicon** and macOS **14.2+**. ZIP and drag-to-Applications DMG assets are provided with SHA-256 checksums. The app and DMG are **Developer ID signed and notarized by Apple**, with stapled tickets. Both pass local Gatekeeper assessment as `Notarized Developer ID`.
+Version **0.4.0 preview 3** (build 7) is built for **Apple silicon** and macOS **14.2+**. ZIP and drag-to-Applications DMG assets are provided with SHA-256 checksums. The app and DMG are **Developer ID signed and notarized by Apple**, with stapled tickets. Both pass local Gatekeeper assessment as `Notarized Developer ID`.
 
-Preview 1 was ad-hoc signed; use preview 2 for a notarized download.
+Preview 1 was ad-hoc signed; use a current release for a notarized download.
 
 ## Packaging
 

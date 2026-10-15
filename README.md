@@ -14,7 +14,7 @@ Requires **macOS 14.2+** and **Apple silicon**.
 2. Drag **eqmini.app** into **Applications** and open it.
 3. Enable the equalizer and allow **System Audio Recording** when macOS asks.
 
-**Preview 2 is Developer ID signed and notarized by Apple.** The app and DMG include stapled tickets and pass Gatekeeper assessment.
+**Downloads are Developer ID signed and notarized by Apple.** The app and DMG include stapled tickets and pass Gatekeeper assessment.
 
 ## Use
 
@@ -24,7 +24,7 @@ Requires **macOS 14.2+** and **Apple silicon**.
 - Choose **All audio** or **Selected apps**. Selected apps share one curve; other apps keep their normal sound.
 - **Reset** clears the EQ, Custom curve, and Speaker bass. Double-click a band to reset it individually.
 
-Open a regular window from **More → Open Equalizer Window**. Closing it leaves eqmini in the menu bar; quitting stops processing. **Settings…** contains optional **Launch at login** and **Restore EQ on launch**, both off by default.
+Opening eqmini shows its window. Left-click the menu-bar icon for the panel; right-click for quick actions. Closing the window leaves eqmini in the menu bar; quitting stops processing. **Settings…** contains optional **Launch at login** and **Restore EQ on launch**, both off by default.
 
 Shortcuts: **⌘O** open window · **⌘1 / ⌘2** Simple / 10 bands · **⌘E** enable / bypass · **⌘,** Settings · **⌘Q** quit.
 
@@ -38,7 +38,7 @@ Shortcuts: **⌘O** open window · **⌘1 / ⌘2** Simple / 10 bands · **⌘E**
 
 ## Privacy
 
-System Audio Recording permission is required to process other apps' sound. eqmini explains this before requesting access. Its Core Audio tap captures audio only: no screen images, saved recordings, or uploads. If access was denied, allow it in **System Settings → Privacy & Security**, then reopen eqmini.
+System Audio Recording permission is required to process other apps' sound. eqmini explains this before the first enable after an update, including when enabled from a menu. Its Core Audio tap captures audio only: no screen images, saved recordings, or uploads. If access was denied, allow it in **System Settings → Privacy & Security**, then reopen eqmini.
 
 Preferences stay on your Mac. The app makes no network requests; website links open your browser. [Privacy policy](https://elma.dev/eqmini/privacy) · [Terms](https://elma.dev/eqmini/terms).
 

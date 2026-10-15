@@ -17,6 +17,7 @@ const char *EQOutputName(void);
 unsigned int EQDefaultOutput(void);
 double EQSampleRate(void);
 bool EQHealthy(void);
+bool EQPermissionDenied(void);
 float EQHeadroom(void);
 float EQReduction(void);
 unsigned long long EQRenderedFrames(void);

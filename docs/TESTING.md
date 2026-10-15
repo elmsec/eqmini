@@ -11,7 +11,7 @@ codesign --verify --deep --strict build/eqmini.app
 
 DSP tests cover flat response, bass contrast, full headroom compensation above 6 dB, output gain, harmonic generation, stereo isolation, invalid values, and bounded output at 44.1/48/96 kHz. Settings tests use an isolated preferences domain. Startup tests use fake login services; no real login item is registered or removed.
 
-CI repeats the build and sanitized suite on native Apple silicon and Intel runners. Hardware-dependent audio permission/capture checks are deliberately excluded from CI.
+CI repeats the build and sanitized suite on native Apple silicon and Intel runners. Menu action tests verify that both enable menus pass through the explanation gate, cancellation bypasses, and acceptance persists. Watchdog tests cover paused sources, stale/unknown activity, resumed callbacks, and sustained playback stalls. Hardware-dependent audio permission/capture checks are deliberately excluded from CI.
 
 ## Live audio checks (opt-in)
 
@@ -29,6 +29,9 @@ The audio test runs three start/capture/stop cycles. It checks callback health, 
 ## Manual release checks
 
 - Download the actual release archive on a clean Mac; test extraction, Gatekeeper, and permission grant/denial.
+- Check a normal launch opens the window, login launch stays quiet, and left/right clicks on the menu-bar icon show the panel/menu.
+- From each enable control, check the explanation appears before macOS permission on a new build; cancel must not start capture.
+- Pause playback for at least 15 seconds in all-audio and selected-app modes; EQ must remain enabled without an error and resume processing when playback resumes.
 - Enable and bypass while audio plays; quit while enabled and confirm normal playback returns.
 - Check selected Spotify/Music playback while an unselected browser remains unaffected. Test no selected apps, app restarts, and helper processes.
 - Compare Simple and 10-band views, change presets, restore Custom, and reset individual bands/the entire EQ.

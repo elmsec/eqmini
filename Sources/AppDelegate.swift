@@ -48,7 +48,8 @@ import SwiftUI
     item.button?.image = Self.menuBarIcon()
     item.button?.toolTip = "eqmini — Equalizer"
     item.button?.target = self
-    item.button?.action = #selector(togglePanel)
+    item.button?.action = #selector(statusItemClicked(_:))
+    item.button?.sendAction(on: [.leftMouseUp, .rightMouseUp])
     let controller = NSHostingController(
       rootView: EqualizerPanel(model: model, panelHeight: panelHeight))
     panelController = controller
@@ -60,11 +61,13 @@ import SwiftUI
     popover.contentSize = NSSize(width: 480, height: panelHeight)
     popover.behavior = .transient
     installMainMenu()
-    if model.shouldRestoreOnLaunch { model.setEnabled(true) }
-    if CommandLine.arguments.contains("--window") {
-      showEqualizerWindow()
-    } else if !quietLaunch {
-      DispatchQueue.main.async { [self] in togglePanel() }
+    if !quietLaunch || CommandLine.arguments.contains("--window") {
+      DispatchQueue.main.async { [self] in
+        showEqualizerWindow()
+        if model.shouldRestoreOnLaunch { model.setEnabled(true) }
+      }
+    } else if model.shouldRestoreOnLaunch && model.hasAcceptedAudioExplanation {
+      model.setEnabled(true)
     }
   }
   private func explainAudioAccess() {
@@ -178,7 +181,43 @@ import SwiftUI
     }
     if !otherVisible { NSApp.setActivationPolicy(.accessory) }
   }
-  @objc private func toggleEqualizer() { if let model { model.setEnabled(!model.enabled) } }
+  @objc func toggleEqualizer() {
+    if let model { model.setEnabled(!model.enabledOrConnecting) }
+  }
+  @objc private func statusItemClicked(_ sender: NSStatusBarButton) {
+    let event = NSApp.currentEvent
+    if event?.type == .rightMouseUp || event?.modifierFlags.contains(.control) == true {
+      popover.performClose(nil)
+      item?.menu = makeStatusMenu()
+      sender.performClick(nil)
+      item?.menu = nil
+    } else {
+      togglePanel()
+    }
+  }
+  func makeStatusMenu() -> NSMenu {
+    let menu = NSMenu()
+    @discardableResult
+    func add(_ title: String, _ action: Selector) -> NSMenuItem {
+      let item = NSMenuItem(title: title, action: action, keyEquivalent: "")
+      item.target = self
+      menu.addItem(item)
+      return item
+    }
+    add("Open Equalizer", #selector(showEqualizerWindow)).keyEquivalent = "o"
+    menu.addItem(.separator())
+    let active = model?.enabledOrConnecting == true
+    add(active ? "Bypass Equalizer" : "Enable Equalizer", #selector(toggleEqualizer))
+      .state = active ? .on : .off
+    menu.addItem(.separator())
+    add("Settings…", #selector(showSettings)).keyEquivalent = ","
+    add("About eqmini", #selector(showAbout))
+    menu.addItem(.separator())
+    let quit = add("Quit eqmini", #selector(NSApplication.terminate(_:)))
+    quit.target = NSApp
+    quit.keyEquivalent = "q"
+    return menu
+  }
   @objc private func resetEqualizer() { model?.resetEqualizer() }
   @objc private func useSimple() { model?.setSimpleMode(true) }
   @objc private func useBands() { model?.setSimpleMode(false) }

@@ -15,6 +15,7 @@ sound::DSP dsp;
 AudioObjectID tap=0, aggregate=0;
 AudioDeviceIOProcID proc=nullptr;
 std::string errorText, outputName;
+bool permissionDenied=false;
 double sampleRate=0;
 AudioDeviceID activeOutput=0;
 unsigned inputBufferOffset=0;
@@ -31,6 +32,7 @@ template<class T> OSStatus read(AudioObjectID object, AudioObjectPropertySelecto
 }
 bool check(OSStatus status,const char *operation) {
     if(!status) return true;
+    if(status==kAudioDevicePermissionsError) permissionDenied=true;
     errorText=std::string(operation)+" (Core Audio "+std::to_string(status)+").";
     return false;
 }
@@ -118,7 +120,7 @@ void EQStop() {
     tap=0; heartbeat.store(0); sampleRate=0; activeOutput=0;
 }
 static bool startAudio(NSArray<NSNumber*> *includedProcesses) {
-    EQStop(); errorText.clear();
+    EQStop(); errorText.clear(); permissionDenied=false;
     @autoreleasepool {
         AudioDeviceID output=EQDefaultOutput(); activeOutput=output;
         if(!output) {errorText="No output device is available."; return false;}
@@ -143,7 +145,7 @@ static bool startAudio(NSArray<NSNumber*> *includedProcesses) {
         }
         description.name=@"eqmini"; description.privateTap=YES;
         description.muteBehavior=CATapMutedWhenTapped;
-        if(!check(AudioHardwareCreateProcessTap(description,&tap),"Allow system audio recording in System Settings → Privacy & Security")) {EQStop(); return false;}
+        if(!check(AudioHardwareCreateProcessTap(description,&tap),"Create system audio tap")) {EQStop(); return false;}
         NSDictionary *composition=@{
             @kAudioAggregateDeviceNameKey:@"eqmini Private Output",
             @kAudioAggregateDeviceUIDKey:[[NSUUID UUID] UUIDString],
@@ -200,6 +202,7 @@ const char *EQAudioProcessesJSON() {
         std::vector<AudioObjectID> processes(bytes/sizeof(AudioObjectID));
         if(!status && bytes) status=AudioObjectGetPropertyData(kAudioObjectSystemObject,&property,0,nullptr,&bytes,processes.data());
         NSMutableArray *items=[NSMutableArray array];
+        AudioDeviceID outputDevice=EQDefaultOutput();
         if(!status) for(AudioObjectID object:processes) {
             pid_t pid=0;
             if(read(object,kAudioProcessPropertyPID,pid) || pid==getpid()) continue;
@@ -229,7 +232,21 @@ const char *EQAudioProcessesJSON() {
             }
             if(!bundleID.length) bundleID=app.bundleIdentifier ?: @"";
             if(!bundleID.length || [bundleID isEqualToString:NSBundle.mainBundle.bundleIdentifier]) continue;
-            [items addObject:@{@"id":@(object),@"pid":@(pid),@"bundleID":bundleID,@"rawBundleID":rawBundleID,@"name":name ?: bundleID}];
+            UInt32 runningOutput=0;
+            OSStatus runningStatus=read(object,kAudioProcessPropertyIsRunningOutput,runningOutput);
+            if(!runningStatus && runningOutput) {
+                auto devicesAddress=address(kAudioProcessPropertyDevices,kAudioObjectPropertyScopeOutput);
+                UInt32 deviceBytes=0;
+                runningStatus=AudioObjectGetPropertyDataSize(object,&devicesAddress,0,nullptr,&deviceBytes);
+                std::vector<AudioObjectID> devices(deviceBytes/sizeof(AudioObjectID));
+                if(!runningStatus && deviceBytes)
+                    runningStatus=AudioObjectGetPropertyData(object,&devicesAddress,0,nullptr,&deviceBytes,devices.data());
+                if(!runningStatus)
+                    runningOutput=std::find(devices.begin(),devices.end(),outputDevice)!=devices.end();
+            }
+            // Unknown activity must not cause a watchdog failure.
+            id activity=runningStatus ? (id)[NSNull null] : @(runningOutput!=0);
+            [items addObject:@{@"runningOutput":activity,@"id":@(object),@"pid":@(pid),@"bundleID":bundleID,@"rawBundleID":rawBundleID,@"name":name ?: bundleID}];
         }
         NSData *json=[NSJSONSerialization dataWithJSONObject:@{@"processes":items,@"status":@(status)} options:0 error:nil];
         result=json?std::string((const char*)json.bytes,json.length):"{\"processes\":[],\"status\":-1}";
@@ -240,6 +257,7 @@ void EQSetBand(int band,float gain) {dsp.set(band,gain);}
 void EQSetLoudnessBoost(bool enabled) {dsp.setLoudnessBoost(enabled);}
 void EQSetOutputGain(float db) {dsp.setOutputGain(db);}
 void EQSetSpeakerBass(float amount) {dsp.setSpeakerBass(amount);}
+bool EQPermissionDenied() {return permissionDenied;}
 const char *EQError() {return errorText.c_str();}
 const char *EQOutputName() {return outputName.c_str();}
 double EQSampleRate() {return sampleRate;}

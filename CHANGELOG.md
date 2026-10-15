@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.0 — preview 3 · 2026-10-15
+
+- Right-click the menu-bar icon for quick actions; left-click still opens the panel.
+- Normal launches open the equalizer window. Login launches remain quiet.
+- The first enable after an update shows the audio explanation from every enable control, including the window menu.
+- Paused sources no longer fail the callback watchdog. Recovery requires a sustained stall during confirmed playback on the current output.
+- Audio Recording Settings is offered for permission failures rather than every audio error.
+
 ## 0.4.0 — preview 2 · 2026-10-15
 
 - Developer ID signing with hardened runtime and the Core Audio input entitlement.

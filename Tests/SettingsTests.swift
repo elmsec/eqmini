@@ -65,6 +65,21 @@ enum SettingsTests {
       return
     }
     if CommandLine.arguments.contains("--settings-self-test") {
+      var watchdog = PlaybackWatchdog()
+      precondition(!watchdog.shouldRecover(callbacksHealthy: false, sourcePlaying: false, now: 0))
+      precondition(!watchdog.shouldRecover(callbacksHealthy: false, sourcePlaying: false, now: 100))
+      precondition(!watchdog.shouldRecover(callbacksHealthy: false, sourcePlaying: true, now: 101))
+      precondition(!watchdog.shouldRecover(callbacksHealthy: false, sourcePlaying: true, now: 105))
+      precondition(watchdog.shouldRecover(callbacksHealthy: false, sourcePlaying: true, now: 106))
+      // A pause, resumed callback, or unknown inventory resets the stall grace.
+      precondition(!watchdog.shouldRecover(callbacksHealthy: false, sourcePlaying: false, now: 107))
+      precondition(!watchdog.shouldRecover(callbacksHealthy: false, sourcePlaying: true, now: 200))
+      precondition(!watchdog.shouldRecover(callbacksHealthy: true, sourcePlaying: true, now: 204))
+      precondition(!watchdog.shouldRecover(callbacksHealthy: false, sourcePlaying: true, now: 205))
+      precondition(!watchdog.shouldRecover(callbacksHealthy: false, sourcePlaying: nil, now: 210))
+      precondition(!watchdog.shouldRecover(callbacksHealthy: false, sourcePlaying: true, now: 300))
+      print(
+        "PASS: paused/unknown sources stay enabled; sustained playback stalls recover after grace")
       let domain = "local.eqmini.settings-test." + UUID().uuidString
       let preferences = UserDefaults(suiteName: domain)!
       defer { preferences.removePersistentDomain(forName: domain) }
