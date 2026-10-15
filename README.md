@@ -4,7 +4,7 @@ A small equalizer for macOS. Shape all audio or just the apps you choose.
 
 Ten-band EQ, simple tone controls, and a bass enhancer for small speakers. No virtual audio driver, account, analytics, or audio uploads. MIT licensed.
 
-<img src="docs/screenshots/simple.png" width="480" alt="eqmini with Bass Boost and Simple controls, routed to Spotify and Music" />
+<img src="docs/screenshots/overview.png" width="960" alt="eqmini Simple equalizer and app selection views side by side" />
 
 ## Install
 
