@@ -38,7 +38,7 @@ Shortcuts: **⌘O** open window · **⌘1 / ⌘2** Simple / 10 bands · **⌘E**
 
 ## Privacy
 
-System Audio Recording permission is required to process other apps' sound. eqMini explains this before the first enable after an update, including when enabled from a menu. Its Core Audio tap captures audio only: no screen images, saved recordings, or uploads. If access was denied, allow it in **System Settings → Privacy & Security**, then reopen eqMini.
+System Audio Recording permission is required to process other apps' sound. eqMini explains this before you first enable EQ, including when enabled from a menu. Its Core Audio tap captures audio only: no screen images, saved recordings, or uploads. If access was denied, allow it in **System Settings → Privacy & Security**, then reopen eqMini.
 
 Preferences stay on your Mac. The app makes no network requests; website links open your browser. [Privacy policy](https://elma.dev/eqmini/privacy) · [Terms](https://elma.dev/eqmini/terms).
 

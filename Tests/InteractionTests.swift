@@ -8,7 +8,6 @@ struct InteractionTests {
     let domain = "dev.elma.eqmini.interactions." + UUID().uuidString
     let preferences = UserDefaults(suiteName: domain)!
     defer { preferences.removePersistentDomain(forName: domain) }
-    preferences.set(true, forKey: "audioExplanationAccepted")  // An older build's acknowledgement.
     preferences.set(true, forKey: "selectedOnly")
     let model = EqualizerModel(preferences: preferences, monitoring: false)
     let delegate = AppDelegate(preferences: preferences)
@@ -55,10 +54,21 @@ struct InteractionTests {
     reopened.setEnabled(true)
     precondition(!reopened.needsAudioExplanation && reopened.waitingForApps)
     reopened.setEnabled(false)
+    // Updating the app must not invalidate an explanation already accepted.
+    preferences.set("2:7", forKey: "audioExplanationRevision")
+    let updated = EqualizerModel(preferences: preferences, monitoring: false)
+    guard updated.hasAcceptedAudioExplanation else {
+      FileHandle.standardError.write(Data("FAIL: an app update repeats the accepted explanation\n".utf8))
+      exit(1)
+    }
+    updated.setEnabled(true)
+    precondition(!updated.needsAudioExplanation && updated.waitingForApps)
+    updated.setEnabled(false)
+    updated.shutdown()
     model.shutdown()
     reopened.shutdown()
     print(
-      "PASS: status/window menu enable requires current explanation; cancel bypasses; accept persists; menu bypass works without capture"
+      "PASS: status/window enable explains once; cancel leaves EQ off; acceptance survives reopen and update"
     )
   }
 }

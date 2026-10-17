@@ -212,13 +212,10 @@ final class EqualizerModel: ObservableObject {
         }
       })
   }
-  // Reconfirm after an app update: earlier builds may have been run with a
-  // different signing identity, for which macOS grants separate capture access.
-  static var audioExplanationRevision: String {
-    "2:" + (Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "development")
-  }
+  // This is an explanation acknowledgement, not the macOS permission grant.
+  // Keep it across launches and updates; Core Audio handles revoked access.
   var hasAcceptedAudioExplanation: Bool {
-    preferences.string(forKey: "audioExplanationRevision") == Self.audioExplanationRevision
+    preferences.bool(forKey: "audioExplanationAccepted")
   }
   var enabledOrConnecting: Bool { enabled || restarting }
   func setEnabled(_ value: Bool) {
@@ -247,7 +244,6 @@ final class EqualizerModel: ObservableObject {
       return
     }
     preferences.set(true, forKey: "audioExplanationAccepted")
-    preferences.set(Self.audioExplanationRevision, forKey: "audioExplanationRevision")
     setEnabled(true)
   }
   var shouldRestoreOnLaunch: Bool {
